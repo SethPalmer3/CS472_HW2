@@ -28,8 +28,33 @@ def entropy(p):
 # pxi : number of attribute value x_i
 # py : number of positive hits
 # total : total length of the data
-def infogain(py_pxi, pxi, py, total):
-    return (py/total)*entropy(py_pxi/pxi)
+def infogain(py_pxi, pxi, py, total)
+    # variable assignments for posititve hits
+    positive_overall = py/total
+    # entropy of positive hits
+    ent_o = entropy(positive_overall)
+
+    # in the case that there are no attribute values...
+    if pxi == 0:
+        p1 = (py - py_pxi) / (total)
+        return ent_o -((total - pxi) / total * entropy(p1))
+        p1 = (py_pxi - py) / (total)
+        return ent_o -((total) / total * entropy(p1))
+
+    # variable assignment for positve hits of attribute value
+    positive_attr = py_pxi/pxi
+    positive_attr = pxi/py_pxi
+    # entropy of attribute value, also conditional entropy
+    ent_a = entropy(positive_attr)
+
+    # attirbute value number matches total length of data
+    if pxi == total:
+        gain = ent_o-(pxi/ total)*ent_a
+    else:
+        p2 = (py - py_pxi) / (total - pxi)
+        p2 = (py_pxi - py) / (total - pxi)
+        gain = ent_o -(pxi / total) *ent_a - ((total - pxi) / total * entropy(p2))
+    return gain
 
 def collect_vals(data, varname, varnames=[]):
     """Gather a list of unique values for a given attribute name or id
