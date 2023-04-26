@@ -4,7 +4,7 @@
 #
 # Starter code provided by Daniel Lowd, 1/25/2018
 #
-#
+# Seth Palmer & Maddie Porcaro
 import sys
 import re
 import math
@@ -30,8 +30,29 @@ def entropy(p):
 # py : number of positive hits
 # total : total length of the data
 def infogain(py_pxi, pxi, py, total):
-    return (py/total)*entropy(py_pxi/pxi)
+    # variable assignments for posititve hits
+    positive_overall = py/total
+    # entropy of positive hits
+    ent_o = entropy(positive_overall)
 
+    # in the case that there are no attribute values...
+    if pxi == 0:
+        p1 = (py - py_pxi) / (total)
+        return ent_o -((total - pxi) / total * entropy(p1))
+
+    # variable assignment for positve hits of attribute value
+    positive_attr = py_pxi/pxi
+    # entropy of attribute value, also conditional entropy
+    ent_a = entropy(positive_attr)
+
+    # attirbute value number matches total length of data
+    if pxi == total:
+        gain = ent_o-(pxi/ total)*ent_a
+    else:
+        p2 = (py - py_pxi) / (total - pxi)
+        gain = ent_o -(pxi / total) *ent_a - ((total - pxi) / total * entropy(p2))
+    return gain
+    
 
 # OTHER SUGGESTED HELPER FUNCTIONS:
 def collect_counts(data: list[list], varnames: list[str])->dict[str, dict]:
@@ -75,9 +96,8 @@ def best_split_attr(data, varnames):
     str
         the string in the varname on which to do a split on
     """
-    pass
+    
 # - partition data based on a given variable
-
 
 # Load data from a file
 def read_data(filename):
