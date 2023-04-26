@@ -32,6 +32,33 @@ def entropy(p):
 def infogain(py_pxi, pxi, py, total):
     return (py/total)*entropy(py_pxi/pxi)
 
+def collect_vals(data, varname, varnames=[]):
+    """Gather a list of unique values for a given attribute name or id
+    Parameters
+    ---
+    data : list
+        data with values of varname
+    varname : int | str
+        the identifier of the desired attribute
+    [varnames] : list
+        the list of varnames, only needed if varname is string
+
+    Returns
+    ---
+    list
+        the collection of unique values
+    """
+
+    vals = []
+    if type(varname) == str:
+        id = varnames.index(varname)
+    else:
+        id = varname
+
+    for c in range(len(data)):
+        if data[c][id] not in vals:
+            vals.append(data[c][id])
+    return vals
 
 # OTHER SUGGESTED HELPER FUNCTIONS:
 def collect_counts(data: list[list], varnames: list[str])->dict[str, dict]:
@@ -40,7 +67,7 @@ def collect_counts(data: list[list], varnames: list[str])->dict[str, dict]:
     Parameters
     ----------
     data : list
-        A 2D list of data values where the coloumns consist of values for a given attribute
+        A 2D list of data values where the columns consist of values for a given attribute
     varnames : list[str]
         A list of all the attribute names that are associated with the data
 
@@ -76,8 +103,33 @@ def best_split_attr(data, varnames):
         the string in the varname on which to do a split on
     """
     pass
-# - partition data based on a given variable
 
+# - partition data based on a given variable
+def partition_on_attr(data, varname_index):
+    """ Split the data based on the given attribute
+    Parameters
+    ---
+    data: list
+        data to split on
+    varname: int
+        split databased on attribute id
+
+    Returns
+    ---
+    ((list[int], list), (list[int], list))
+        returns a tuple of tuples each of which the first element is the list of attribute id,
+        and the second element is the list of data
+    """
+    v1 = [], v2 = []
+    id1 = [x for x in range(varname_index)] # First half
+    id2 = [x for x in range(varname_index + 1, len(data[0]))] # Second half
+    vals = collect_vals(data, varname_index)
+    for row in range(len(data)):
+        if data[row][varname_index] == vals[0]:
+            v1.append(data[row][:varname_index] + data[row][varname_index+1:])
+        else:
+            v2.append(data[row][:varname_index] + data[row][varname_index+1:])
+    return ((id1, v1), (id2, v2))
 
 # Load data from a file
 def read_data(filename):
@@ -103,7 +155,6 @@ def print_model(root, modelfile):
 # pure leaf or all splits look bad.
 def build_tree(data, varnames):
     # >>>> YOUR CODE GOES HERE <<<<
-    
     # For now, always return a leaf predicting "1":
     return node.Leaf(varnames, 1)
 
