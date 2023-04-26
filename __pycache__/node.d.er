@@ -1,0 +1,26 @@
+##[pylyzer] failed c:\users\elder\desktop\hw2-starter-code\node.py 1682370044
+.sys = pyimport "sys"
+
+.Node: ClassType
+.Node.names: Never
+.Node.__call__: (names: Obj) -> .Node
+.Node.classify: (x: Obj) -> {None, }
+.Node.write: (self: .Node, f: Obj, indent: Obj) -> {None, }
+
+.Leaf: ClassType
+.Leaf <: .Node
+.Leaf.value: Never
+.Leaf.__call__: (value: Obj) -> .Leaf
+.Leaf.classify: |Type_32: Type, Type_22 <: Structural({.value = Type_32})|(self: Type_22, x: Obj) -> Type_32
+.Leaf.write: |Type_26 <: Structural({.value = R}), Type_38: Type, R: Type|(self: Type_26, f: Structural({.write = (self: Structural({.write = (self: Structural({.write = ...}), Obj) -> Never}), Obj) -> Type_38}), indent: Obj) -> Type_38
+
+.Split: ClassType
+.Split <: .Node
+.Split.right: Never
+.Split.var: Never
+.Split.left: Never
+.Split.__call__: (var: Obj, left: Obj, right: Obj) -> .Split
+.Split.classify: |Type_45 <: Structural({.__getitem__ = (self: Type_45, Type_54) -> E}), T: Type, E :> {0, }, Type_44 <: Structural({.right = Type_62}), Type_54: Type, Type_62 <: Structural({.classify = (self: Type_62, Type_45) -> Type_64}), Type_64 :> T or U, U: Type|(self: Type_44, x: Type_45) -> Type_64
+.Split.write: |Type_97: Type, O: Type, Type_93: Type, Type_94 <: Structural({.write = (self: Type_94, Type_49, O) -> Type_97}), Type_92: Type, Type_49 <: Structural({.write = (self: Type_49, Type_92) -> Type_93}), Type_48 <: Structural({.right = Type_94})|(self: Type_48, f: Type_49, indent: Structural({.__gt__ = (self: Never, Obj) -> Bool; .__add__ = (self: Never, Obj) -> O})) -> Type_97
+
+
