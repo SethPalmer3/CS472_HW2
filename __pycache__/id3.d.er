@@ -1,0 +1,27 @@
+##[pylyzer] failed c:\users\elder\desktop\hw2-starter-code\id3.py 1682623811
+.sys = pyimport "sys"
+
+.re = pyimport "re"
+
+.math = pyimport "math"
+
+.node = pyimport "node"
+
+.train: {None, }
+.varnames: {None, }
+.test: {None, }
+.testvarnames: {None, }
+.root: {None, }
+.entropy: (p: Int) -> Never
+.infogain: |O <: Int, O <: Structural({.__div__ = (self: Never, R) -> O}), R <: Structural({.__div__ = (self: Never, R) -> O; .__sub__ = (self: Never, R) -> O}), O <: Structural({.__div__ = (self: Never, R) -> O}), R <: Structural({.__div__ = (self: Never, {0, }) -> O; .__sub__ = (self: Never, R) -> O}), O: Type, R :> Float, R :> {0, }, R <: Float|(py_pxi: R, pxi: {0, }, py: R, total: R) -> O
+.collect_vals: |T :> Int, Type_24: Type, Type_23 <: Structural({.__getitem__ = (self: Type_23, T) -> Type_120}), Type_121: Type, Type_122: Type, Type_120 <: Structural({.__getitem__ = (self: Type_120, Type_121) -> Type_122})|(data: Type_23, varname: Type_24, varnames: Structural({.index = (self: Never, Type_24) -> Never})) -> Array(Never, 0)
+.collect_counts: (data: Array(GenericArray, _: Nat), varnames: Array(Str, _: Nat)) -> Dict({Never: Never})
+.best_split_attr: (data: Obj, varnames: Obj) -> Never
+.partition_on_attr: |Type_168: Type, Type_167 <: Structural({.__getitem__ = (self: Type_167, Type_168) -> Type_169}), Type_169: Type, Type_23 <: Structural({.__getitem__ = (self: Type_23, T) -> Type_167}), T :> Int|(data: Type_23, varname_index: Obj) -> Tuple([Tuple([Failure, Array(..., 0)]), Tuple([Failure, Array(..., 0)])])
+.read_data: (filename: PathLike) -> Tuple([Array(Never, 0), Never])
+.print_model: |Type_203: Type, Type_41 <: Structural({.write = (self: Type_41, Type_201, Type_202) -> Type_203}), Type_202 :> {0, }, Type_201 :> File!|(root: Type_41, modelfile: PathLike) -> Type_203
+.build_tree: (data: Obj, varnames: Obj) -> Never
+.loadAndTrain: (trainS: PathLike, testS: PathLike, modelS: PathLike) -> Never
+.runTest: () -> Float
+.main: |Type_56 <: Structural({.__getitem__ = (self: Type_56, Type_259) -> Type_260}), Type_260 <: PathLike, Type_259 :> {2, }|(argv: Type_56) -> NoneType
+
