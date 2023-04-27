@@ -28,7 +28,7 @@ def entropy(p):
 # pxi : number of attribute value x_i
 # py : number of positive hits
 # total : total length of the data
-def infogain(py_pxi, pxi, py, total)
+def infogain(py_pxi, pxi, py, total):
     # variable assignments for posititve hits
     positive_overall = py/total
     # entropy of positive hits
