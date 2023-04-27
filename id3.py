@@ -24,10 +24,10 @@ def entropy(p):
     return -p*math.log2(p) - (1-p)*math.log2(1-p)
 
 # Compute information gain for a particular split, given the counts
-# py_pxi : number of positive hits in the attribute value x_i
-# pxi : number of attribute value x_i
-# py : number of positive hits
-# total : total length of the data
+# py_pxi : number of positive hits in the attribute value
+# pxi : number of occurances of the attribute value
+# py : number of total positive hits in data set
+# total : number of total of data set points(length of data)
 def infogain(py_pxi, pxi, py, total):
     # variable assignments for posititve hits
     positive_overall = py/total
@@ -42,8 +42,7 @@ def infogain(py_pxi, pxi, py, total):
         return ent_o -((total) / total * entropy(p1))
 
     # variable assignment for positve hits of attribute value
-    positive_attr = py_pxi/pxi
-    positive_attr = pxi/py_pxi
+    positive_attr = min(py_pxi/pxi, pxi/py_pxi)
     # entropy of attribute value, also conditional entropy
     ent_a = entropy(positive_attr)
 
@@ -51,8 +50,8 @@ def infogain(py_pxi, pxi, py, total):
     if pxi == total:
         gain = ent_o-(pxi/ total)*ent_a
     else:
-        p2 = (py - py_pxi) / (total - pxi)
-        p2 = (py_pxi - py) / (total - pxi)
+        p2 = abs((py - py_pxi) / (total - pxi))
+        # p2 = (py_pxi - py) / (total - pxi)
         gain = ent_o -(pxi / total) *ent_a - ((total - pxi) / total * entropy(p2))
     return gain
 
@@ -126,7 +125,12 @@ def best_split_attr(data, varnames):
     str
         the string in the varname on which to do a split on
     """
-    pass
+    inc_infogain = -1
+    best_var = ""
+    stats = collect_counts(data, varnames)
+    for key, val in stats.items():
+        # infgain = infogain()
+        pass
 
 # - partition data based on a given variable
 def partition_on_attr(data, varname_index):
@@ -155,6 +159,44 @@ def partition_on_attr(data, varname_index):
         else:
             v2.append(data[row][varname_index+1:])
     return ((id1, v1), (id2, v2))
+
+def get_col(data, col_num):
+    """Gets all the column data in the col_num th column
+    Parameters
+    ---
+    data : list[list]
+        data to pull a column from
+    col_num : int
+        the column number of which to grab
+
+    Returns
+    ---
+    list
+        a list of data from that column(in order from highest row to lowest)
+    """
+    ret = []
+    for r in range(len(data)):
+        ret.append(data[r][col_num])
+
+    return ret
+
+def same_class(outclass):
+    """Determines if all outputs belong to the same class
+    Parameters
+    ---
+    outclass : list
+        a list of the output
+
+    Returns
+    ---
+    bool
+        true if all outputs are the same class
+    """
+    for o in range(1,len(outclass)):
+        if outclass[o] == outclass[o-1]:
+            return False
+
+    return True
 
 # Load data from a file
 def read_data(filename):
