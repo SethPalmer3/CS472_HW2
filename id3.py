@@ -130,7 +130,6 @@ def partition_on_attr(data, varname_index):
             v2.append(data[row][:varname_index] + data[row][varname_index+1:])
     return ((id1, v1), (id2, v2))
 
-
 # Load data from a file
 def read_data(filename):
     f = open(filename, 'r')
