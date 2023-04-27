@@ -29,6 +29,18 @@ def entropy(p):
 # py : number of total positive hits in data set
 # total : number of total of data set points(length of data)
 def infogain(py_pxi, pxi, py, total):
+    """Compute information gain for a particular split, given the counts
+    Parameters
+    ---
+     py_pxi : number of positive hits in the attribute value
+     pxi : number of occurances of the attribute value
+     py : number of total positive hits in data set
+     total : number of total of data set points(length of data)
+     Returns
+     ---
+     int
+        the info gain
+    """
     # variable assignments for posititve hits
     positive_overall = py/total
     # entropy of positive hits
@@ -101,14 +113,44 @@ def collect_counts(data: list[list], varnames: list[str])->dict[str, dict]:
     """
     var_counts = {}
     for v in range(len(varnames)):
-        var = {}
+        var = {} # stores collection info for a particular attribute
         for c in range(len(data)):
-            if var.get(data[c][v]) is None:
+            if var.get(data[c][v]) is None: # Not already stored value
                 var[data[c][v]] = 0
             var[data[c][v]] += 1
         var_counts[varnames[v]] = var
 
     return var_counts
+
+def count_pos_hits(data, varname_id, attr_val, pos_out_val):
+    """counts the number of of positive hits for a given attribute value with a desired output value. Assume last column in data is the output
+    Parameters
+    ---
+    data : list[list]
+        data matrix
+    varname_id : int
+        attribute id to check against
+    attr_val : Any
+        the value of the attribute to count positives against
+    pos_out_val : Any
+        which output value considered positive
+
+    Returns
+    ---
+    (int, int)
+        the number of positive hits in the attribute in the attribute value,
+        and the total number of that attribute values.
+        If the varname_id is equal to output id returns (0,0)"""
+    hcount = 0
+    vcount = 0
+    if varname_id == len(data[0])-1:
+        return (0,0)
+    for d in range(len(data)):
+        if data[d][varname_id] == attr_val:
+            vcount += 1 # value count
+            if data[d][-1] == pos_out_val:
+                hcount += 1 # hit count
+    return (hcount, vcount)
 
 # - find the best variable to split on, according to mutual information
 def best_split_attr(data, varnames):
@@ -128,9 +170,16 @@ def best_split_attr(data, varnames):
     inc_infogain = -1
     best_var = ""
     stats = collect_counts(data, varnames)
-    for key, val in stats.items():
-        # infgain = infogain()
-        pass
+    out_val = list(stats.items())[-1][1][0] # Gets the outputs positive value
+    out_pos_hits = list(stats.items())[-1][1][1] # Gets the number of the outputs positive value
+    for attr, cnts in stats.items(): # Find highest info gain
+        val_pos = list(cnts.items())[-1][0] # Get the attribute value
+        hits, tot = count_pos_hits(data, varnames.index(attr), val_pos, out_val)
+        infgn = infogain(hits, tot, out_pos_hits, len(data))
+        if infgn > inc_infogain:
+            best_var = attr
+            inc_infogain = infgn
+    return best_var
 
 # - partition data based on a given variable
 def partition_on_attr(data, varname_index):
