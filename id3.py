@@ -144,15 +144,16 @@ def partition_on_attr(data, varname_index):
         returns a tuple of tuples each of which the first element is the list of attribute id,
         and the second element is the list of data
     """
-    v1 = [], v2 = []
+    v1 = []
+    v2 = []
     id1 = [x for x in range(varname_index)] # First half
     id2 = [x for x in range(varname_index + 1, len(data[0]))] # Second half
     vals = collect_vals(data, varname_index)
     for row in range(len(data)):
         if data[row][varname_index] == vals[0]:
-            v1.append(data[row][:varname_index] + data[row][varname_index+1:])
+            v1.append(data[row][:varname_index])
         else:
-            v2.append(data[row][:varname_index] + data[row][varname_index+1:])
+            v2.append(data[row][varname_index+1:])
     return ((id1, v1), (id2, v2))
 
 # Load data from a file
