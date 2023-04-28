@@ -178,7 +178,7 @@ def best_split_attr(data, varnames):
         if infgn > inc_infogain:
             best_var = attr
             inc_infogain = infgn
-    return best_var
+    return best_var, out_val
 
 # - partition data based on a given variable
 def partition_on_attr(data, varname_index):
@@ -277,7 +277,6 @@ def build_tree(data, varnames: list[str]):
     pxi = 0           # number of occurances of the attribute value
     py = 0            # number of total positve hits in data set
     total = len(data) # total of data set (length of data)
-    gain = 0          # current value of info gain
     gain_name = None  # name of info gain attribute
 
     for i in range(len(varnames) -1):
@@ -298,30 +297,13 @@ def build_tree(data, varnames: list[str]):
     if py == 0:
         return node.Leaf(varnames, 0)
 
-    # get current info gain value
-    # for d in range(len(varnames) - 1):
-    #     temp_g = infogain(py_pxi, pxi, py, total)
-    #     if temp_g > gain:
-    #         gain = temp_g
-    #         gain_name = d
     
     # if the attribute name is None
-    best_split = best_split_attr(data, varnames)
+    best_split, out_val = best_split_attr(data, varnames)
     gain_name = varnames.index(best_split)
     if best_split is varnames[-1]:
-        return node.Leaf(varnames, 1)
+        return node.Leaf(varnames, out_val)
     
-    # divide the data
-    # data0 = []
-    # data1 = []
-
-    # for i in range(len(data)):
-    #     if data[i][gain_name] == 0:
-    #         l = data[i]
-    #         data0.append(l)
-    #     else:
-    #         l = data[i]
-    #         data1.append(l)
     newdata = partition_on_attr(data, gain_name)
     data0 = newdata[0]
     data1 = newdata[1]
