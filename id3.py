@@ -178,7 +178,7 @@ def best_split_attr(data, varnames):
         if infgn > inc_infogain:
             best_var = attr
             inc_infogain = infgn
-    return best_var, out_val
+    return best_var, out_val, inc_infogain
 
 # - partition data based on a given variable
 def partition_on_attr(data, varname_index):
@@ -200,9 +200,8 @@ def partition_on_attr(data, varname_index):
     v2 = []
     id1 = [x for x in range(varname_index)] + [len(data[0]) - 1] # First half
     id2 = [x for x in range(varname_index + 1, len(data[0]))] # Second half
-    vals = collect_vals(data, varname_index)
     for row in range(len(data)):
-        if data[row][varname_index] == vals[0]:
+        if data[row][varname_index] == 0:
             v1.append(data[row][:varname_index] + [data[row][-1]])
         else:
             v2.append(data[row][varname_index+1:] + [data[row][-1]])
@@ -228,23 +227,20 @@ def get_col(data, col_num):
 
     return ret
 
-def same_class(outclass):
-    """Determines if all outputs belong to the same class
-    Parameters
-    ---
-    outclass : list
-        a list of the output
+def get_probabl_class(l):
+    d = {}
+    for x in l:
+        if x not in d.keys():
+           d[x] = 0
+        d[x] += 1
+    most_likely = None
+    most_count = 0
+    for attr_vals, count in d.items():
+        if count > most_count:
+            most_likely = attr_vals
+            most_count = count
+    return most_likely
 
-    Returns
-    ---
-    bool
-        true if all outputs are the same class
-    """
-    for o in range(1,len(outclass)):
-        if outclass[o] == outclass[o-1]:
-            return False
-
-    return True
 
 # Load data from a file
 def read_data(filename):
@@ -273,36 +269,13 @@ def build_tree(data, varnames: list[str]):
     # For now, always return a leaf predicting "1":
     # return node.Leaf(varnames, 1)
 
-    py_pxi = 0        # number of postive hits in attribute value
-    pxi = 0           # number of occurances of the attribute value
-    py = 0            # number of total positve hits in data set
-    total = len(data) # total of data set (length of data)
-    gain_name = None  # name of info gain attribute
-
-    for i in range(len(varnames) -1):
-        for j in data:
-            # check attribute 
-            if j[i] == 1:
-                pxi += 1
-            # check data set
-            if j[-1] == 1:
-                py += 1
-            # data set and attribute 
-            if j[i] == 1 and j[-1] == 1:
-                py_pxi += 1
-
-    # base cases for total postive hits
-    if py == total:
-        return node.Leaf(varnames, 1)
-    if py == 0:
-        return node.Leaf(varnames, 0)
-
     
     # if the attribute name is None
-    best_split, out_val = best_split_attr(data, varnames)
+    best_split, out_val, ingain = best_split_attr(data, varnames)
+    if ingain == 0.0 or best_split == varnames[-1]:
+        return node.Leaf(varnames, get_probabl_class(get_col(data, -1)))
+
     gain_name = varnames.index(best_split)
-    if best_split is varnames[-1]:
-        return node.Leaf(varnames, out_val)
 
     newdata = partition_on_attr(data, gain_name)
     data0 = newdata[0]
