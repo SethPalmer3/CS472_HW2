@@ -65,70 +65,6 @@ def infogain(py_pxi, pxi, py, total):
         p2 = abs((py - py_pxi) / (total - pxi))
         gain = ent_o -(pxi / total) *ent_a - ((total - pxi) / total * entropy(p2))
     return gain
-    # ent_S = entropy(py/total)
-    # if pxi == 0:
-    #     ent_p = 0
-    #     ent_n = 1
-    # else:
-    #     ent_p = entropy(py_pxi/pxi)
-    #     ent_n = entropy((pxi - py_pxi) / pxi)
-    # return ent_S - (pxi/total)*ent_p - ((total - pxi)/total)*ent_n
-    
-
-def collect_vals(data, varname, varnames=[]):
-    """Gather a list of unique values for a given attribute name or id
-    Parameters
-    ---
-    data : list
-        data with values of varname
-    varname : int | str
-        the identifier of the desired attribute
-    [varnames] : list
-        the list of varnames, only needed if varname is string
-
-    Returns
-    ---
-    list
-        the collection of unique values
-    """
-
-    vals = []
-    if type(varname) == str:
-        id = varnames.index(varname)
-    else:
-        id = varname
-
-    for c in range(len(data)):
-        if data[c][id] not in vals:
-            vals.append(data[c][id])
-    return vals
-
-# OTHER SUGGESTED HELPER FUNCTIONS:
-def collect_counts(data: list[list], varnames: list[str])->dict[str, dict]:
-    """Creates a dictionary of dictionaries for which each entry describes the attributes values and how many there are
-
-    Parameters
-    ----------
-    data : list
-        A 2D list of data values where the columns consist of values for a given attribute
-    varnames : list[str]
-        A list of all the attribute names that are associated with the data
-
-    Returns
-    -------
-    dict
-        where each entry describes the attribute and the value is another dict with it's values and how many there are
-    """
-    var_counts = {}
-    for v in range(len(varnames)):
-        var = {} # stores collection info for a particular attribute
-        for c in range(len(data)):
-            if var.get(data[c][v]) is None: # Not already stored value
-                var[data[c][v]] = 0
-            var[data[c][v]] += 1
-        var_counts[varnames[v]] = var
-
-    return var_counts
 
 def count_pos_hits(data, varname_id, attr_val = 1, pos_out_val = 1):
     """counts the number of of positive hits for a given attribute value with a desired output value. Assume last column in data is the output
@@ -159,84 +95,6 @@ def count_pos_hits(data, varname_id, attr_val = 1, pos_out_val = 1):
             if data[d][-1] == pos_out_val:
                 hcount += 1 # hit count
     return (hcount, vcount)
-
-# - find the best variable to split on, according to mutual information
-def best_split_attr(data, varnames):
-    """ Determines the best attribute to split the given data on
-    Parameters
-    ---
-    data : list
-        The data set for each attribute
-    varnames : list[str]
-        The list of attribute names 
-
-    Returns
-    ---
-    str
-        the string in the varname on which to do a split on
-    """
-    inc_infogain = -1
-    best_var = ""
-    stats = collect_counts(data, varnames)
-    if 1 not in list(stats.items())[-1][1].keys():
-        out_pos_hits = 0
-    else:
-        out_pos_hits = list(stats.items())[-1][1][1] # Gets the number of the outputs positive value
-
-    for attr, _ in stats.items(): # Find highest info gain
-        hits, tot = count_pos_hits(data, varnames.index(attr), 1, 1)
-        infgn = infogain(hits, tot, out_pos_hits, len(data))
-        if infgn > inc_infogain:
-            best_var = attr
-            inc_infogain = infgn
-    return best_var, inc_infogain
-
-# - partition data based on a given variable
-def partition_on_attr(data, varname_index):
-    """ Split the data based on the given attribute
-    Parameters
-    ---
-    data: list
-        data to split on
-    varname: int
-        split databased on attribute id
-
-    Returns
-    ---
-    ((list[int], list), (list[int], list))
-        returns a tuple of tuples each of which the first element is the list of attribute id,
-        and the second element is the list of data
-    """
-    v1 = []
-    v2 = []
-    id1 = [x for x in range(varname_index)] + [len(data[0]) - 1] # First half
-    id2 = [x for x in range(varname_index + 1, len(data[0]))] # Second half
-    for row in range(len(data)):
-        if data[row][varname_index] == 0:
-            v1.append(data[row][:varname_index] + [data[row][-1]])
-        else:
-            v2.append(data[row][varname_index+1:])
-    return (id1, v1), (id2, v2)
-
-def get_col(data, col_num):
-    """Gets all the column data in the col_num th column
-    Parameters
-    ---
-    data : list[list]
-        data to pull a column from
-    col_num : int
-        the column number of which to grab
-
-    Returns
-    ---
-    list
-        a list of data from that column(in order from highest row to lowest)
-    """
-    ret = []
-    for r in range(len(data)):
-        ret.append(data[r][col_num])
-
-    return ret
 
 def get_probabl_class(l):
     d = {}
@@ -286,7 +144,6 @@ def print_model(root, modelfile):
 # pure leaf or all splits look bad.
 def build_tree(data, varnames: list[str]):
     # if the attribute name is None
-    # Base cases
     best_attr = -1
     best_infogain = 0
     total = len(data)
@@ -297,6 +154,7 @@ def build_tree(data, varnames: list[str]):
         if temp_ig > best_infogain:
             best_attr = attr
             best_infogain = temp_ig
+    # Base cases
     if best_infogain == 0:
         return node.Leaf(varnames, data[0][-1])
     
@@ -305,10 +163,8 @@ def build_tree(data, varnames: list[str]):
     #Split data
     for r in range(len(data)):
         if data[r][best_attr] == 0:
-            # data0.append(data[r][:best_attr] + data[r][best_attr+1:])
             data0.append(data[r])
         else:
-            # data1.append(data[r][:best_attr] + data[r][best_attr+1:])
             data1.append(data[r])
 
     left = build_tree(data0, varnames)
