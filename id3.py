@@ -21,6 +21,8 @@ root = None
 # Helper function computes entropy of Bernoulli distribution with
 # parameter p
 def entropy(p):
+    if p <= 0 or p >= 1:
+        return 0
     return -p*math.log2(p) - (1-p)*math.log2(1-p)
 
 # Compute information gain for a particular split, given the counts
