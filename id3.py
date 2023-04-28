@@ -65,6 +65,15 @@ def infogain(py_pxi, pxi, py, total):
         p2 = abs((py - py_pxi) / (total - pxi))
         gain = ent_o -(pxi / total) *ent_a - ((total - pxi) / total * entropy(p2))
     return gain
+    # ent_S = entropy(py/total)
+    # if pxi == 0:
+    #     ent_p = 0
+    #     ent_n = 1
+    # else:
+    #     ent_p = entropy(py_pxi/pxi)
+    #     ent_n = entropy((pxi - py_pxi) / pxi)
+    # return ent_S - (pxi/total)*ent_p - ((total - pxi)/total)*ent_n
+    
 
 def collect_vals(data, varname, varnames=[]):
     """Gather a list of unique values for a given attribute name or id
@@ -273,7 +282,6 @@ def print_model(root, modelfile):
     f = open(modelfile, 'w+')
     root.write(f, 0)
 
-
 # Build tree in a top-down manner, selecting splits until we hit a
 # pure leaf or all splits look bad.
 def build_tree(data, varnames: list[str]):
@@ -282,27 +290,31 @@ def build_tree(data, varnames: list[str]):
     best_attr = -1
     best_infogain = 0
     total = len(data)
-    dat_d = count_col(data, -1)
+    set_dat = count_col(data, -1)
     for attr in range(len(varnames)-1): # Find the best info gain
-        hit, tot = count_pos_hits(data, attr, 1, 1)
-        temp_ig = infogain(hit, tot, dat_d[1], total)
+        hit, tot = count_pos_hits(data, attr, 0, 0)
+        temp_ig = infogain(hit, tot, set_dat[0], total)
         if temp_ig > best_infogain:
             best_attr = attr
             best_infogain = temp_ig
     if best_infogain == 0:
-        return node.Leaf(varnames, get_probabl_class(get_col(data,-1)))
+        return node.Leaf(varnames, data[0][-1])
     
     data0 = []
     data1 = []
     #Split data
     for r in range(len(data)):
         if data[r][best_attr] == 0:
-            data0.append(data[r][:best_attr] + data[r][best_attr+1:])
+            # data0.append(data[r][:best_attr] + data[r][best_attr+1:])
+            data0.append(data[r])
         else:
-            data1.append(data[r][:best_attr] + data[r][best_attr+1:])
+            # data1.append(data[r][:best_attr] + data[r][best_attr+1:])
+            data1.append(data[r])
 
-    return node.Split(varnames, best_attr, build_tree(data0, varnames[:best_attr] + varnames[best_attr+1:]), 
-                                           build_tree(data1, varnames[:best_attr] + varnames[best_attr+1:]))
+    left = build_tree(data0, varnames)
+    right = build_tree(data1, varnames)
+
+    return node.Split(varnames, best_attr, left, right)
  
 
 # "varnames" is a list of names, one for each variable
