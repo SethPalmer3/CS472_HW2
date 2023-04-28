@@ -198,14 +198,14 @@ def partition_on_attr(data, varname_index):
     """
     v1 = []
     v2 = []
-    id1 = [x for x in range(varname_index)] # First half
+    id1 = [x for x in range(varname_index)] + [len(data[0]) - 1] # First half
     id2 = [x for x in range(varname_index + 1, len(data[0]))] # Second half
     vals = collect_vals(data, varname_index)
     for row in range(len(data)):
         if data[row][varname_index] == vals[0]:
-            v1.append(data[row][:varname_index])
+            v1.append(data[row][:varname_index] + [data[row][-1]])
         else:
-            v2.append(data[row][varname_index+1:])
+            v2.append(data[row][varname_index+1:] + [data[row][-1]])
     return ((id1, v1), (id2, v2))
 
 def get_col(data, col_num):
@@ -268,7 +268,7 @@ def print_model(root, modelfile):
 
 # Build tree in a top-down manner, selecting splits until we hit a
 # pure leaf or all splits look bad.
-def build_tree(data, varnames):
+def build_tree(data, varnames: list[str]):
     # >>>> YOUR CODE GOES HERE <<<<
     # For now, always return a leaf predicting "1":
     # return node.Leaf(varnames, 1)
@@ -299,30 +299,36 @@ def build_tree(data, varnames):
         return node.Leaf(varnames, 0)
 
     # get current info gain value
-    for d in range(len(varnames) - 1):
-        temp_g = infogain(py_pxi, pxi, py, total)
-        if temp_g > gain:
-            gain = temp_g
-            gain_name = d
+    # for d in range(len(varnames) - 1):
+    #     temp_g = infogain(py_pxi, pxi, py, total)
+    #     if temp_g > gain:
+    #         gain = temp_g
+    #         gain_name = d
     
     # if the attribute name is None
-    best_split = gain_name
-    if best_split is None:
+    best_split = best_split_attr(data, varnames)
+    gain_name = varnames.index(best_split)
+    if best_split is varnames[-1]:
         return node.Leaf(varnames, 1)
     
     # divide the data
-    data0 = []
-    data1 = []
+    # data0 = []
+    # data1 = []
 
-    for i in range(len(data)):
-        if data[i][gain_name] == 0:
-            list = data[i]
-            data0.append(list)
-        else:
-            list = data[i]
-            data1.append(list)
+    # for i in range(len(data)):
+    #     if data[i][gain_name] == 0:
+    #         l = data[i]
+    #         data0.append(l)
+    #     else:
+    #         l = data[i]
+    #         data1.append(l)
+    newdata = partition_on_attr(data, gain_name)
+    data0 = newdata[0]
+    data1 = newdata[1]
+    varnms0 = [varnames[x] for x in data0[0]]
+    varnms1 = [varnames[x] for x in data1[0]]
 
-    return node.Split(varnames, gain_name, build_tree(data0, varnames), build_tree(data1, varnames))
+    return node.Split(varnames, gain_name, build_tree(data0[1], varnms0), build_tree(data1[1], varnms1))
  
 
 # "varnames" is a list of names, one for each variable
