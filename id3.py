@@ -298,12 +298,7 @@ def build_tree(data, varnames: list[str]):
     if py == 0:
         return node.Leaf(varnames, 0)
 
-    # get current info gain value
-    # for d in range(len(varnames) - 1):
-    #     temp_g = infogain(py_pxi, pxi, py, total)
-    #     if temp_g > gain:
-    #         gain = temp_g
-    #         gain_name = d
+
     
     # if the attribute name is None
     best_split = best_split_attr(data, varnames)
@@ -311,17 +306,7 @@ def build_tree(data, varnames: list[str]):
     if best_split is varnames[-1]:
         return node.Leaf(varnames, 1)
     
-    # divide the data
-    # data0 = []
-    # data1 = []
 
-    # for i in range(len(data)):
-    #     if data[i][gain_name] == 0:
-    #         l = data[i]
-    #         data0.append(l)
-    #     else:
-    #         l = data[i]
-    #         data1.append(l)
     newdata = partition_on_attr(data, gain_name)
     data0 = newdata[0]
     data1 = newdata[1]
