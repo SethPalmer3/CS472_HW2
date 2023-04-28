@@ -280,7 +280,7 @@ def build_tree(data, varnames):
     gain = 0          # current value of info gain
     gain_name = None  # name of info gain attribute
 
-    for i in range in range(len(varnames) -1):
+    for i in range(len(varnames) -1):
         for j in data:
             # check attribute 
             if j[i] == 1:
