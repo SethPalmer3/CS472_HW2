@@ -50,8 +50,6 @@ def infogain(py_pxi, pxi, py, total):
     if pxi == 0:
         p1 = (py - py_pxi) / (total)
         return ent_o -((total - pxi) / total * entropy(p1))
-        p1 = (py_pxi - py) / (total)
-        return ent_o -((total) / total * entropy(p1))
 
     # variable assignment for positve hits of attribute value
     positive_attr = min(py_pxi/pxi, pxi/py_pxi)
@@ -272,8 +270,40 @@ def print_model(root, modelfile):
 def build_tree(data, varnames):
     # >>>> YOUR CODE GOES HERE <<<<
     # For now, always return a leaf predicting "1":
-    return node.Leaf(varnames, 1)
+    # return node.Leaf(varnames, 1)
 
+    py_pxi = 0        # number of postive hits in attribute value
+    pxi = 0           # number of occurances of the attribute value
+    py = 0            # number of total positve hits in data set
+    total = len(data) # total of data set (length of data)
+    gain = 0          # current value of info gain
+    gain_name = None  # name of info gain attribute
+
+    for i in range in range(len(varnames) -1):
+        for j in data:
+            # check attribute 
+            if j[i] == 1:
+                pxi += 1
+            # check data set
+            if j[-1] == 1:
+                py += 1
+            # data set and attribute 
+            if j[i] == 1 and j[-1] == 1:
+                py_pxi += 1
+
+    if py == total:
+        return node.Leaf(varnames, 1)
+    if py == 0:
+        return node.Leaf(varnames, 0)
+
+        
+    
+
+    
+
+  
+
+    
 
 # "varnames" is a list of names, one for each variable
 # "train" and "test" are lists of examples.
