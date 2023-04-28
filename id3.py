@@ -169,16 +169,18 @@ def best_split_attr(data, varnames):
     inc_infogain = -1
     best_var = ""
     stats = collect_counts(data, varnames)
-    out_val = list(list(stats.items())[-1][1].keys())[0] # Gets the outputs positive value
-    out_pos_hits = list(list(stats.items())[-1][1].values())[0] # Gets the number of the outputs positive value
-    for attr, cnts in stats.items(): # Find highest info gain
-        val_pos = list(cnts.items())[-1][0] # Get the attribute value
-        hits, tot = count_pos_hits(data, varnames.index(attr), val_pos, out_val)
+    if 1 not in list(stats.items())[-1][1].keys():
+        out_pos_hits = 0
+    else:
+        out_pos_hits = list(stats.items())[-1][1][1] # Gets the number of the outputs positive value
+
+    for attr, _ in stats.items(): # Find highest info gain
+        hits, tot = count_pos_hits(data, varnames.index(attr), 1, 1)
         infgn = infogain(hits, tot, out_pos_hits, len(data))
         if infgn > inc_infogain:
             best_var = attr
             inc_infogain = infgn
-    return best_var, out_val, inc_infogain
+    return best_var, inc_infogain
 
 # - partition data based on a given variable
 def partition_on_attr(data, varname_index):
@@ -266,7 +268,7 @@ def print_model(root, modelfile):
 # pure leaf or all splits look bad.
 def build_tree(data, varnames: list[str]):
     # if the attribute name is None
-    best_split, out_val, ingain = best_split_attr(data, varnames)
+    best_split, ingain = best_split_attr(data, varnames)
     if ingain == 0.0 or best_split == varnames[-1]:
         return node.Leaf(varnames, get_probabl_class(get_col(data, -1)))
 
