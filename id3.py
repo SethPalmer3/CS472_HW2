@@ -292,19 +292,38 @@ def build_tree(data, varnames):
             if j[i] == 1 and j[-1] == 1:
                 py_pxi += 1
 
+    # base cases for total postive hits
     if py == total:
         return node.Leaf(varnames, 1)
     if py == 0:
         return node.Leaf(varnames, 0)
 
-        
+    # get current info gain value
+    for d in range(len(varnames) - 1):
+        temp_g = infogain(py_pxi, pxi, py, total)
+        if temp_g > gain:
+            gain = temp_g
+            gain_name = d
     
-
+    # if the attribute name is None
+    best_split = gain_name
+    if best_split is None:
+        return node.Leaf(varnames, 1)
     
+    # divide the data
+    data0 = []
+    data1 = []
 
-  
+    for i in range(len(data)):
+        if data[i][gain_name] == 0:
+            list = data[i]
+            data0.append(list)
+        else:
+            list = data[i]
+            data1.append(list)
 
-    
+    return node.Split(varnames, gain_name, build_tree(data0, varnames), build_tree(data1, varnames))
+ 
 
 # "varnames" is a list of names, one for each variable
 # "train" and "test" are lists of examples.
