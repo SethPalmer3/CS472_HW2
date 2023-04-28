@@ -265,11 +265,6 @@ def print_model(root, modelfile):
 # Build tree in a top-down manner, selecting splits until we hit a
 # pure leaf or all splits look bad.
 def build_tree(data, varnames: list[str]):
-    # >>>> YOUR CODE GOES HERE <<<<
-    # For now, always return a leaf predicting "1":
-    # return node.Leaf(varnames, 1)
-
-    
     # if the attribute name is None
     best_split, out_val, ingain = best_split_attr(data, varnames)
     if ingain == 0.0 or best_split == varnames[-1]:
