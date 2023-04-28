@@ -50,11 +50,9 @@ def infogain(py_pxi, pxi, py, total):
     if pxi == 0:
         p1 = (py - py_pxi) / (total)
         return ent_o -((total - pxi) / total * entropy(p1))
-        p1 = (py_pxi - py) / (total)
-        return ent_o -((total) / total * entropy(p1))
 
     # variable assignment for positve hits of attribute value
-    positive_attr = min(py_pxi/pxi, pxi/py_pxi)
+    positive_attr = py_pxi/pxi
     # entropy of attribute value, also conditional entropy
     ent_a = entropy(positive_attr)
 
@@ -63,7 +61,6 @@ def infogain(py_pxi, pxi, py, total):
         gain = ent_o-(pxi/ total)*ent_a
     else:
         p2 = abs((py - py_pxi) / (total - pxi))
-        # p2 = (py_pxi - py) / (total - pxi)
         gain = ent_o -(pxi / total) *ent_a - ((total - pxi) / total * entropy(p2))
     return gain
 
@@ -170,8 +167,8 @@ def best_split_attr(data, varnames):
     inc_infogain = -1
     best_var = ""
     stats = collect_counts(data, varnames)
-    out_val = list(stats.items())[-1][1][0] # Gets the outputs positive value
-    out_pos_hits = list(stats.items())[-1][1][1] # Gets the number of the outputs positive value
+    out_val = list(list(stats.items())[-1][1].keys())[0] # Gets the outputs positive value
+    out_pos_hits = list(list(stats.items())[-1][1].values())[0] # Gets the number of the outputs positive value
     for attr, cnts in stats.items(): # Find highest info gain
         val_pos = list(cnts.items())[-1][0] # Get the attribute value
         hits, tot = count_pos_hits(data, varnames.index(attr), val_pos, out_val)
