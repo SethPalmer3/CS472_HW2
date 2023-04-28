@@ -277,7 +277,6 @@ def build_tree(data, varnames: list[str]):
     pxi = 0           # number of occurances of the attribute value
     py = 0            # number of total positve hits in data set
     total = len(data) # total of data set (length of data)
-    gain = 0          # current value of info gain
     gain_name = None  # name of info gain attribute
 
     for i in range(len(varnames) -1):
