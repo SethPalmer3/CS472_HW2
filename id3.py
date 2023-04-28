@@ -121,7 +121,7 @@ def collect_counts(data: list[list], varnames: list[str])->dict[str, dict]:
 
     return var_counts
 
-def count_pos_hits(data, varname_id, attr_val, pos_out_val):
+def count_pos_hits(data, varname_id, attr_val = 1, pos_out_val = 1):
     """counts the number of of positive hits for a given attribute value with a desired output value. Assume last column in data is the output
     Parameters
     ---
@@ -142,7 +142,7 @@ def count_pos_hits(data, varname_id, attr_val, pos_out_val):
         If the varname_id is equal to output id returns (0,0)"""
     hcount = 0
     vcount = 0
-    if varname_id == len(data[0])-1:
+    if varname_id >= len(data[0])-1:
         return (0,0)
     for d in range(len(data)):
         if data[d][varname_id] == attr_val:
@@ -206,8 +206,8 @@ def partition_on_attr(data, varname_index):
         if data[row][varname_index] == 0:
             v1.append(data[row][:varname_index] + [data[row][-1]])
         else:
-            v2.append(data[row][varname_index+1:] + [data[row][-1]])
-    return ((id1, v1), (id2, v2))
+            v2.append(data[row][varname_index+1:])
+    return (id1, v1), (id2, v2)
 
 def get_col(data, col_num):
     """Gets all the column data in the col_num th column
@@ -243,6 +243,16 @@ def get_probabl_class(l):
             most_count = count
     return most_likely
 
+def count_col(data, col_num):
+    d = {
+            1:0,
+            0:0,
+        }
+    for r in range(len(data)):
+        d[data[r][col_num]] += 1
+
+    return d
+
 
 # Load data from a file
 def read_data(filename):
@@ -268,19 +278,31 @@ def print_model(root, modelfile):
 # pure leaf or all splits look bad.
 def build_tree(data, varnames: list[str]):
     # if the attribute name is None
-    best_split, ingain = best_split_attr(data, varnames)
-    if ingain == 0.0 or best_split == varnames[-1]:
-        return node.Leaf(varnames, get_probabl_class(get_col(data, -1)))
+    # Base cases
+    best_attr = -1
+    best_infogain = 0
+    total = len(data)
+    dat_d = count_col(data, -1)
+    for attr in range(len(varnames)-1): # Find the best info gain
+        hit, tot = count_pos_hits(data, attr, 1, 1)
+        temp_ig = infogain(hit, tot, dat_d[1], total)
+        if temp_ig > best_infogain:
+            best_attr = attr
+            best_infogain = temp_ig
+    if best_infogain == 0:
+        return node.Leaf(varnames, get_probabl_class(get_col(data,-1)))
+    
+    data0 = []
+    data1 = []
+    #Split data
+    for r in range(len(data)):
+        if data[r][best_attr] == 0:
+            data0.append(data[r][:best_attr] + data[r][best_attr+1:])
+        else:
+            data1.append(data[r][:best_attr] + data[r][best_attr+1:])
 
-    gain_name = varnames.index(best_split)
-
-    newdata = partition_on_attr(data, gain_name)
-    data0 = newdata[0]
-    data1 = newdata[1]
-    varnms0 = [varnames[x] for x in data0[0]]
-    varnms1 = [varnames[x] for x in data1[0]]
-
-    return node.Split(varnames, gain_name, build_tree(data0[1], varnms0), build_tree(data1[1], varnms1))
+    return node.Split(varnames, best_attr, build_tree(data0, varnames[:best_attr] + varnames[best_attr+1:]), 
+                                           build_tree(data1, varnames[:best_attr] + varnames[best_attr+1:]))
  
 
 # "varnames" is a list of names, one for each variable
