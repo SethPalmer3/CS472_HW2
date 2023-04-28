@@ -297,21 +297,13 @@ def build_tree(data, varnames: list[str]):
     if py == 0:
         return node.Leaf(varnames, 0)
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 109fc8ef0f338c4c8301f4e597f194d4b5b13064
     
     # if the attribute name is None
     best_split, out_val = best_split_attr(data, varnames)
     gain_name = varnames.index(best_split)
     if best_split is varnames[-1]:
         return node.Leaf(varnames, out_val)
-    
-<<<<<<< HEAD
-=======
 
->>>>>>> 109fc8ef0f338c4c8301f4e597f194d4b5b13064
     newdata = partition_on_attr(data, gain_name)
     data0 = newdata[0]
     data1 = newdata[1]
